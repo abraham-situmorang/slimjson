@@ -1,0 +1,12 @@
+{
+  "name": "slimjson-benchmark",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node benchmark.mjs"
+  },
+  "dependencies": {
+    "slimjson": "file:../../packages/js"
+  }
+}

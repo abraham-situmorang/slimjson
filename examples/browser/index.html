@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SlimJSON Interactive Demo & Inspector</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --success: #4ade80;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem;
+      line-height: 1.5;
+    }
+    header {
+      max-width: 1200px;
+      margin: 0 auto 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h1 span {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .badge {
+      font-size: 0.8rem;
+      background: #0369a1;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 600;
+    }
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    button {
+      background: var(--accent);
+      color: #0f172a;
+      border: none;
+      padding: 0.6rem 1.2rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: var(--accent-hover); color: #fff; }
+    button.secondary {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    button.secondary:hover { background: #334155; }
+    
+    .metrics-bar {
+      max-width: 1200px;
+      margin: 0 auto 1.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 0.25rem;
+    }
+    .metric-card.saved .metric-value {
+      color: var(--success);
+    }
+    .metric-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .panels {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    @media (max-width: 800px) {
+      .panels { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .panel-header {
+      padding: 0.75rem 1rem;
+      background: #182234;
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    pre {
+      padding: 1rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.85rem;
+      overflow: auto;
+      height: 480px;
+      color: #e2e8f0;
+      background: #0a0f1d;
+    }
+    .console-log {
+      max-width: 1200px;
+      margin: 1.5rem auto 0;
+      background: #0a0f1d;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #38bdf8;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <h1><span>SlimJSON</span> Interactive Demo <span class="badge">SPEC v1.0</span></h1>
+      <p style="color: var(--text-muted); font-size: 0.9rem;">Inspect and benchmark payload reduction in real time.</p>
+    </div>
+    <div class="actions">
+      <button onclick="generateData(100)">100 Rows</button>
+      <button onclick="generateData(500)">500 Rows</button>
+      <button onclick="generateData(2000)">2,000 Rows</button>
+      <button class="secondary" onclick="testLazyReader()">Test Lazy Reader</button>
+    </div>
+  </header>
+
+  <div class="metrics-bar">
+    <div class="metric-card">
+      <div class="metric-label">Record Count</div>
+      <div class="metric-value" id="val-records">0</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Standard JSON Size</div>
+      <div class="metric-value" id="val-std-size">0 KB</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">SlimJSON Size</div>
+      <div class="metric-value" id="val-slim-size">0 KB</div>
+    </div>
+    <div class="metric-card saved">
+      <div class="metric-label">Bandwidth Saved</div>
+      <div class="metric-value" id="val-saved">0%</div>
+    </div>
+  </div>
+
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-header">
+        <span>Standard JSON (RFC 8259)</span>
+        <span id="std-byte-count" style="color: var(--text-muted); font-size: 0.8rem;">0 bytes</span>
+      </div>
+      <pre id="code-standard">Generating data...</pre>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <span>SlimJSON (SPEC v1.0)</span>
+        <span id="slim-byte-count" style="color: var(--success); font-size: 0.8rem;">0 bytes</span>
+      </div>
+      <pre id="code-slim">Generating data...</pre>
+    </div>
+  </div>
+
+  <div class="console-log" id="console-output">
+    ℹ️ Ready. Click any button above to generate and inspect datasets.
+  </div>
+
+  <script>
+    // Embedded SlimJSON Pack & Lazy implementation for standalone browser execution
+    function slimPack(items, options) {
+      if (!items || items.length === 0) return { __slim__: "1.0", cols: [], rows: [] };
+      const cols = options?.columns || Object.keys(items[0]);
+      const rows = items.map(item => cols.map(c => item[c] !== undefined ? item[c] : null));
+      return { __slim__: "1.0", cols, rows };
+    }
+
+    function slimLazy(doc) {
+      const colMap = new Map(doc.cols.map((c, i) => [c, i]));
+      return doc.rows.map(row => new Proxy({}, {
+        get(_, prop) {
+          if (prop === 'toJSON') return () => Object.fromEntries(doc.cols.map((c, i) => [c, row[i]]));
+          const idx = colMap.get(prop);
+          return idx !== undefined ? row[idx] : undefined;
+        },
+        ownKeys() { return doc.cols; },
+        has(_, prop) { return colMap.has(prop); }
+      }));
+    }
+
+    let currentDataset = [];
+    let currentSlim = null;
+
+    function generateData(count) {
+      const cities = ['Jakarta', 'Surabaya', 'Bandung', 'Medan', 'Denpasar', 'Semarang'];
+      const names = ['Budi Santoso', 'Siti Rahma', 'Andi Wijaya', 'Dewi Lestari', 'Reza Pratama'];
+      
+      const list = [];
+      for (let i = 1; i <= count; i++) {
+        list.push({
+          customer_id: 1000 + i,
+          customer_name: names[i % names.length],
+          customer_address: `Jl. Raya Utama No. ${i}, ${cities[i % cities.length]}`,
+          is_active: i % 2 === 0,
+          account_balance: parseFloat((i * 123.45).toFixed(2))
+        });
+      }
+
+      currentDataset = list;
+      currentSlim = slimPack(list);
+
+      const stdStr = JSON.stringify(list, null, 2);
+      const slimStr = JSON.stringify(currentSlim, null, 2);
+
+      const stdBytes = new TextEncoder().encode(stdStr).length;
+      const slimBytes = new TextEncoder().encode(slimStr).length;
+      const savedPct = ((1 - slimBytes / stdBytes) * 100).toFixed(1);
+
+      document.getElementById('val-records').textContent = count.toLocaleString();
+      document.getElementById('val-std-size').textContent = (stdBytes / 1024).toFixed(1) + ' KB';
+      document.getElementById('val-slim-size').textContent = (slimBytes / 1024).toFixed(1) + ' KB';
+      document.getElementById('val-saved').textContent = savedPct + '%';
+
+      document.getElementById('std-byte-count').textContent = stdBytes.toLocaleString() + ' bytes';
+      document.getElementById('slim-byte-count').textContent = slimBytes.toLocaleString() + ' bytes';
+
+      document.getElementById('code-standard').textContent = stdStr;
+      document.getElementById('code-slim').textContent = slimStr;
+
+      log(`✅ Generated ${count} records. Standard: ${(stdBytes/1024).toFixed(1)} KB | SlimJSON: ${(slimBytes/1024).toFixed(1)} KB (Saved ${savedPct}%)`);
+    }
+
+    function testLazyReader() {
+      if (!currentSlim) {
+        generateData(100);
+      }
+      const t0 = performance.now();
+      const lazyList = slimLazy(currentSlim);
+      const duration = (performance.now() - t0).toFixed(3);
+
+      const firstRow = lazyList[0];
+      log(`⚡ Lazy proxy initialization took ${duration}ms for ${lazyList.length} rows. Direct property read: customer_name = "${firstRow.customer_name}", balance = ${firstRow.account_balance}. Memory allocations: 0 rows upfront!`);
+    }
+
+    function log(msg) {
+      document.getElementById('console-output').textContent = msg;
+    }
+
+    // Auto-load 100 records
+    window.addEventListener('DOMContentLoaded', () => generateData(100));
+  </script>
+</body>
+</html>

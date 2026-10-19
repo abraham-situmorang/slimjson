@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SlimJson/SlimJson.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SlimJson.Tests/SlimJson.Tests.csproj" />
+  </Folder>
+</Solution>

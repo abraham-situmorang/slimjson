@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <PackageId>SlimJson</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>SlimJSON Contributors</Authors>
+    <Description>High-performance compact tabular JSON serialization and deserialization library for .NET</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/slimjson/slimjson</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/slimjson/slimjson</RepositoryUrl>
+    <PackageTags>json;serialization;tabular;compression;performance;slimjson</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+</Project>

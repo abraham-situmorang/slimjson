@@ -1,0 +1,40 @@
+{
+  "name": "slimjson",
+  "version": "1.0.0",
+  "description": "Ultra-fast, zero-overhead compact tabular JSON serialization & lazy reader",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test test/slimjson.test.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "json",
+    "compression",
+    "tabular",
+    "table",
+    "slimjson",
+    "performance",
+    "bandwidth",
+    "api",
+    "serializer"
+  ],
+  "author": "SlimJSON Contributors",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.8.0"
+  }
+}
